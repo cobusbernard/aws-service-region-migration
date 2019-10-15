@@ -3,7 +3,6 @@
 # 2. A CodeBuild job to build and push the container. The build steps are defined in the buildspec.yml file.
 # 3. An IAM policy that the build runs as with access to create images and push to ECR.
 # 4. A webhook to receive notifications when commits are pushed to GitHub.
-
 resource "aws_ecr_repository" "webinar_repo" {
   name = "${var.container_name}"
 }
