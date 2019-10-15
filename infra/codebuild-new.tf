@@ -4,21 +4,24 @@
 # 3. An IAM policy that the build runs as with access to create images and push to ECR.
 # 4. A webhook to receive notifications when commits are pushed to GitHub.
 
-resource "aws_ecr_repository" "webinar_repo" {
+resource "aws_ecr_repository" "webinar_repo_new" {
+  provider = aws.new
   name = "${var.container_name}"
 }
 
-data "template_file" "buildspec" {
+data "template_file" "buildspec_new" {
   template = "${file("templates/buildspec.yml")}"
 
   vars = {
     container_name = "${var.container_name}"
-    repository_url = "${aws_ecr_repository.webinar_repo.repository_url}"
-    region         = "${var.aws_region}"
+    repository_url = "${aws_ecr_repository.webinar_repo_new.repository_url}"
+    region         = "${var.aws_region_new}"
   }
 }
 
-resource "aws_codebuild_project" "build_image" {
+resource "aws_codebuild_project" "build_image_new" {
+  provider = aws.new
+
   name          = "${var.container_name}-docker-build"
   build_timeout = "60"
 
@@ -38,6 +41,6 @@ resource "aws_codebuild_project" "build_image" {
 
   source {
     type      = "CODEPIPELINE"
-    buildspec = "${data.template_file.buildspec.rendered}"
+    buildspec = "${data.template_file.buildspec_new.rendered}"
   }
 }
