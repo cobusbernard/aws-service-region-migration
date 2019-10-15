@@ -12,7 +12,9 @@
         ],
         "Resource": [
           "${codepipeline_bucket_arn}",
-          "${codepipeline_bucket_arn}/*"
+          "${codepipeline_bucket_arn}/*",
+          "${codepipeline_bucket_arn_new}",
+          "${codepipeline_bucket_arn_new}/*"
         ]
       },
       {

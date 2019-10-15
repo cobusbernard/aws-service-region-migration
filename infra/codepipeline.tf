@@ -4,18 +4,18 @@
 # 2. An S3 bucket to store the source code into
 # 3. An ECS cluster to deploy to (which we already have)
 
-resource "aws_s3_bucket" "webinar_source_new" {
-  bucket        = "${var.container_name}-pipeline-new"
+resource "aws_s3_bucket" "webinar_source" {
+  bucket        = "${var.container_name}-pipeline"
   acl           = "private"
   force_destroy = true
 }
 
-resource "aws_codepipeline" "webinar_pipeline_new" {
+resource "aws_codepipeline" "webinar_pipeline" {
   name     = "${var.container_name}-pipeline"
   role_arn = "${aws_iam_role.codepipeline_role.arn}"
 
   artifact_store {
-    location = "${aws_s3_bucket.webinar_source_new.bucket}"
+    location = "${aws_s3_bucket.webinar_source.bucket}"
     type     = "S3"
   }
 
@@ -76,11 +76,11 @@ resource "aws_codepipeline" "webinar_pipeline_new" {
   }
 }
 
-resource "aws_codepipeline_webhook" "webinar_app_new" {
+resource "aws_codepipeline_webhook" "webinar_app" {
   name            = "${var.container_name}-webhook-github"
   authentication  = "GITHUB_HMAC"
   target_action   = "Source"
-  target_pipeline = "${aws_codepipeline.webinar_pipeline_new.name}"
+  target_pipeline = "${aws_codepipeline.webinar_pipeline.name}"
 
   authentication_configuration {
     secret_token = "${local.webhook_secret}"
@@ -93,11 +93,11 @@ resource "aws_codepipeline_webhook" "webinar_app_new" {
 }
 
 # Wire the CodePipeline webhook into a GitHub repository.
-resource "github_repository_webhook" "webinar_app_new" {
+resource "github_repository_webhook" "webinar_app" {
   repository = "${var.github_repo_name}"
 
   configuration {
-    url          = "${aws_codepipeline_webhook.webinar_app_new.url}"
+    url          = "${aws_codepipeline_webhook.webinar_app.url}"
     content_type = "json"
     insecure_ssl = true
     secret       = "${local.webhook_secret}"
